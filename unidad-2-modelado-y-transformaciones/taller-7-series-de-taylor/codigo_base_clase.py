@@ -22,7 +22,7 @@ def miFactorial(n):
 
 def miSin(x):
     suma = 0
-    termino = 0
+    termino = 1
     n = 0
     aporteMin = 0.00001
     while True:
