@@ -66,7 +66,8 @@ computacion-grafica/
 ├── unidad-2-modelado-y-transformaciones/     # Series, curvas y transformaciones geométricas
 │   ├── README.md
 │   └── taller-7-series-de-taylor/            # Taller 7: Series de Taylor y Error
-│       ├── taller_7_series_taylor.py         # Código ejecutable del taller
+│       ├── README.md                         # Objetivo, estado y archivos del taller
+│       ├── taller_7_otras_funciones.py       # Entregable: series de exp, sin, cos, tan y ln
 │       ├── codigo_base_clase.py              # Transcripción del código visto en clase
 │       └── explicacion_linea_por_linea.md    # Explicación pedagógica detallada línea a línea
 └── unidad-3-escenas-y-animacion/             # Escenas 3D, animación y proyecto final
@@ -95,7 +96,7 @@ pip install numpy matplotlib
 ### Ejecutar un taller (ejemplo Taller 7):
 
 ```bash
-python3 unidad-2-modelado-y-transformaciones/taller-7-series-de-taylor/taller_7_series_taylor.py
+python3 unidad-2-modelado-y-transformaciones/taller-7-series-de-taylor/taller_7_otras_funciones.py
 ```
 
 ---
