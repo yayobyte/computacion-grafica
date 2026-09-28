@@ -62,7 +62,17 @@ flowchart LR
 computacion-grafica/
 ├── README.md                                 # Guía general de la asignatura
 ├── unidad-1-fundamentos-y-geometria/         # Prácticas de vectores, matrices y primeras gráficas
-│   └── README.md
+│   ├── README.md
+│   ├── taller1-caida-libre/                  # Taller 1: Física computacional (caída libre a proyectiles)
+│   │   ├── README.md                         # Objetivo, estado y archivos del taller
+│   │   ├── taller1_caida_libre.py            # Entregable: menú con los 6 puntos
+│   │   ├── Taller1.md                        # Enunciado transcrito del PDF
+│   │   └── images/                           # Capturas del enunciado
+│   └── taller2-control-listas-funciones/     # Taller 2: Control, listas y funciones
+│       ├── README.md                         # Objetivo, estado y archivos del taller
+│       ├── taller2_control_listas_funciones.py  # Entregable: menú con 10 ejercicios
+│       ├── Taller2.md                        # Enunciado transcrito del PDF
+│       └── Taller2.pdf                       # Enunciado original
 ├── unidad-2-modelado-y-transformaciones/     # Series, curvas y transformaciones geométricas
 │   ├── README.md
 │   └── taller-7-series-de-taylor/            # Taller 7: Series de Taylor y Error
