@@ -1,0 +1,271 @@
+/* Disposición de la ventana del visor (opción B del boceto). */
+
+.visor-pagina {
+  max-width: var(--ventana-ancho);
+  margin: 0 auto;
+  padding: 18px max(16px, env(safe-area-inset-left, 0px)) 32px;
+  display: grid;
+  gap: 12px;
+}
+
+.volver {
+  justify-self: start;
+  text-decoration: none;
+}
+
+.visor-ventana {
+  display: grid;
+  grid-template-rows: auto auto auto auto auto 1fr auto;
+}
+
+.visor-titulo h1 {
+  font-size: var(--texto-grande);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.decoracion-so {
+  position: relative;
+  z-index: 1;
+  letter-spacing: 0.4em;
+}
+
+.visor-menu {
+  padding: 4px 10px;
+}
+
+.visor-ruta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+.campo-ruta {
+  flex: 1 1 260px;
+}
+
+.visor-cuerpo {
+  display: grid;
+  grid-template-columns: var(--ventana-columnas);
+  min-height: 0;
+}
+
+.visor-area {
+  position: relative;
+  padding: 16px;
+  display: grid;
+  min-width: 0;
+}
+
+.visor-lienzo,
+.visor-vacio {
+  position: relative;
+  height: min(64vh, 620px);
+  min-width: 0;
+}
+
+/* Flex con alto definido: así max-height: 100% del lienzo sí se resuelve */
+.visor-lienzo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visor-lienzo canvas {
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: auto;
+  box-shadow: 0 0 0 1px var(--relleno);
+}
+
+.visor-vacio {
+  display: grid;
+  place-items: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  align-content: center;
+  gap: 8px;
+  text-align: center;
+  color: var(--tinta-suave);
+}
+
+.visor-vacio > *:not(.trazo) {
+  position: relative;
+  z-index: 1;
+}
+
+.icono-vacio {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.texto-vacio {
+  font-size: var(--texto-grande);
+}
+
+.visor-panel {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-width: 0;
+}
+
+.visor-panel-contenido {
+  padding: 22px 16px 12px;
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+.visor-acciones {
+  padding: 0 16px 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.botones-panel {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.visor-estado {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+.visor-estado > *:not(.trazo) {
+  position: relative;
+  z-index: 1;
+}
+
+.botones-estado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mensaje-estado {
+  font-size: var(--texto-pequeno);
+}
+
+.nota {
+  font-size: var(--texto-pequeno);
+}
+
+/* Zoom y fusión */
+.campo-xy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.campo-xy .sk-campo {
+  width: 96px;
+}
+
+.miniatura-zoom {
+  position: relative;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  min-height: 90px;
+  max-width: 100%;
+}
+
+.miniatura-zoom canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 170px;
+  border: 1.5px solid var(--tinta-suave);
+  border-radius: 3px;
+}
+
+.marco-zoom {
+  position: absolute;
+  border: 2.5px dashed var(--acento);
+  background: color-mix(in srgb, var(--acento) 12%, transparent);
+  pointer-events: none;
+}
+
+.fila-ruta-panel .sk-campo {
+  flex: 1 1 140px;
+}
+
+/* Diálogos */
+.fila-formulario {
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+
+.aviso {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.aviso p {
+  margin: 0;
+}
+
+.icono-aviso {
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--aviso);
+}
+
+.icono-aviso.info {
+  color: var(--acento);
+}
+
+.leyenda {
+  font-size: var(--texto-pequeno);
+}
+
+.muestra-color {
+  display: inline-block;
+  width: 14px;
+  height: 4px;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+.manual {
+  margin: 0;
+  padding-left: 22px;
+  display: grid;
+  gap: 8px;
+}
+
+/* Pantallas angostas: el panel pasa debajo de la imagen */
+@media (max-width: 860px) {
+  .visor-cuerpo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .decoracion-so {
+    display: none;
+  }
+
+  .visor-area .trazo {
+    display: none;
+  }
+
+  .visor-lienzo,
+  .visor-vacio {
+    height: 46vh;
+  }
+}

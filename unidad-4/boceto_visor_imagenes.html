@@ -1,0 +1,541 @@
+<title>Boceto Visor de Imágenes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: hoja de diseño de un estudiante. Los bocetos van en trazo de lápiz gris
+   con letra manuscrita; las anotaciones van en azul de bolígrafo, como en papel. */
+:root {
+  --papel: #fbfbf8;
+  --tinta: #1f2329;
+  --tinta-suave: #5a616c;
+  --trazo: #3d434d;
+  --relleno: #eceef1;
+  --relleno-2: #dfe2e7;
+  --anotacion: #2453b8;
+  --anotacion-fondo: #e6ecfa;
+  --aviso: #b4441c;
+  --regla: #d6d9de;
+  --f-boceto: "Patrick Hand", "Comic Sans MS", "Segoe Print", cursive;
+  --f-texto: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-dato: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papel: #16181c; --tinta: #e7e9ec; --tinta-suave: #a2a8b3; --trazo: #b9bec7;
+    --relleno: #23262c; --relleno-2: #2d3138; --anotacion: #8fb0ff; --anotacion-fondo: #1e2a45;
+    --aviso: #ff9a6e; --regla: #34383f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papel: #16181c; --tinta: #e7e9ec; --tinta-suave: #a2a8b3; --trazo: #b9bec7;
+  --relleno: #23262c; --relleno-2: #2d3138; --anotacion: #8fb0ff; --anotacion-fondo: #1e2a45;
+  --aviso: #ff9a6e; --regla: #34383f; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--papel); color: var(--tinta); font-family: var(--f-texto);
+  font-size: 15px; line-height: 1.6;
+}
+.pagina {
+  max-width: 1120px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 72px;
+  display: grid; gap: 56px;
+}
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-family: var(--f-boceto); font-weight: 400; font-size: clamp(2.2rem, 5vw, 3.2rem); }
+h2 { font-size: 1.35rem; font-weight: 600; }
+h3 { font-size: 1.05rem; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-family: var(--f-dato); font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--anotacion); }
+.intro { display: grid; gap: 14px; }
+.ficha { display: flex; flex-wrap: wrap; gap: 8px 24px; font-family: var(--f-dato); font-size: .82rem; color: var(--tinta-suave); }
+.ficha b { color: var(--tinta); font-weight: 500; }
+section { display: grid; gap: 18px; }
+.cabecera-seccion { display: grid; gap: 6px; border-top: 1.5px solid var(--regla); padding-top: 18px; }
+
+/* --- Leyenda y guía de dibujo --- */
+.dos-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.dos-col > * { min-width: 0; }
+.leyenda { display: grid; gap: 10px; }
+.leyenda li { display: grid; grid-template-columns: 120px 1fr; gap: 12px; align-items: center; }
+.leyenda ul, ol.pasos { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+ol.pasos { counter-reset: paso; }
+ol.pasos li { counter-increment: paso; display: grid; grid-template-columns: 28px 1fr; gap: 8px; }
+ol.pasos li::before { content: counter(paso); font-family: var(--f-dato); color: var(--anotacion); font-weight: 500; }
+.muestra { display: flex; justify-content: center; }
+
+/* --- Elementos del boceto --- */
+.lienzo { overflow-x: auto; padding-bottom: 6px; }
+.wf { font-family: var(--f-boceto); font-size: 17px; line-height: 1.25; color: var(--tinta); }
+.ventana {
+  min-width: 880px; border: 2px solid var(--trazo); border-radius: 6px; background: var(--papel);
+  display: grid; grid-template-rows: auto auto auto 1fr auto;
+}
+.barra-titulo { display: flex; justify-content: space-between; align-items: center; padding: 6px 12px; border-bottom: 2px solid var(--trazo); background: var(--relleno); }
+.barra-titulo .botones-so { letter-spacing: .5em; color: var(--tinta-suave); }
+.menu { display: flex; gap: 22px; padding: 4px 12px; border-bottom: 1.5px dashed var(--trazo); }
+.fila-ruta { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-bottom: 1.5px solid var(--trazo); flex-wrap: nowrap; }
+.cuerpo { display: grid; grid-template-columns: 1.9fr 1fr; min-height: 380px; }
+.area-imagen { position: relative; border-right: 2px solid var(--trazo); padding: 14px; display: grid; }
+.imagen {
+  position: relative; border: 2px solid var(--trazo); min-height: 330px;
+  background:
+    linear-gradient(to top right, transparent calc(50% - 1px), var(--tinta-suave) calc(50% - 1px), var(--tinta-suave) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(to top left, transparent calc(50% - 1px), var(--tinta-suave) calc(50% - 1px), var(--tinta-suave) calc(50% + 1px), transparent calc(50% + 1px)),
+    var(--relleno);
+}
+.imagen .rotulo { position: absolute; left: 10px; bottom: 8px; background: var(--papel); padding: 0 6px; font-size: 15px; color: var(--tinta-suave); }
+.vacio { border: 2px dashed var(--trazo); display: grid; place-content: center; text-align: center; gap: 8px; color: var(--tinta-suave); min-height: 330px; }
+.panel { padding: 0 0 12px; display: grid; grid-template-rows: auto 1fr auto; }
+.pestanas { display: flex; border-bottom: 2px solid var(--trazo); }
+.pestanas span { padding: 6px 10px; border-right: 1.5px solid var(--trazo); color: var(--tinta-suave); }
+.pestanas span.activa { background: var(--papel); color: var(--tinta); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; box-shadow: inset 0 -3px 0 var(--trazo); }
+.contenido-pestana { padding: 14px 14px 6px; display: grid; gap: 14px; align-content: start; }
+.grupo { border: 1.5px dashed var(--trazo); border-radius: 4px; padding: 14px 10px 10px; position: relative; display: grid; gap: 10px; }
+.grupo > .titulo-grupo { position: absolute; top: -12px; left: 8px; background: var(--papel); padding: 0 6px; }
+.control { display: grid; grid-template-columns: 82px 1fr 54px; align-items: center; gap: 8px; }
+.deslizador { position: relative; height: 18px; }
+.deslizador::before { content: ""; position: absolute; left: 0; right: 0; top: 8px; border-top: 2px solid var(--trazo); }
+.deslizador i { position: absolute; top: 1px; width: 14px; height: 16px; border: 2px solid var(--trazo); background: var(--papel); border-radius: 3px; transform: translateX(-50%); }
+.deslizador small { position: absolute; top: 16px; font-size: 12px; color: var(--tinta-suave); }
+.deslizador small.izq { left: 0; } .deslizador small.der { right: 0; }
+.campo { border: 2px solid var(--trazo); border-radius: 3px; padding: 2px 6px; background: var(--papel); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.campo.ancho { flex: 1; min-width: 0; }
+.campo.giro::after { content: " ▴▾"; font-size: 12px; color: var(--tinta-suave); }
+.campo.combo::after { content: " ▾"; float: right; }
+.boton { border: 2px solid var(--trazo); border-radius: 4px; padding: 3px 12px; background: var(--relleno); white-space: nowrap; display: inline-block; }
+.boton.principal { border-width: 3px; font-weight: 700; padding: 5px 18px; background: var(--relleno-2); }
+.opciones { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.opcion::before { content: "○ "; }
+.opcion.on::before { content: "◉ "; }
+.casilla::before { content: "☐ "; }
+.casilla.on::before { content: "☑ "; }
+.inactivo { opacity: .45; }
+.acciones-panel { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 14px 0; border-top: 1.5px dashed var(--trazo); }
+.barra-estado { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 12px; border-top: 2px solid var(--trazo); background: var(--relleno); flex-wrap: wrap; }
+.barra-estado .izq { display: flex; gap: 8px; }
+.marco-zoom { position: absolute; border: 2.5px dashed var(--anotacion); }
+.miniatura { width: 100%; height: 70px; border: 2px solid var(--trazo); background:
+    linear-gradient(to top right, transparent calc(50% - 1px), var(--tinta-suave) calc(50% - 1px), var(--tinta-suave) calc(50% + 1px), transparent calc(50% + 1px)), var(--relleno); }
+.fase2 { font-family: var(--f-dato); font-size: 11px; border: 1px solid var(--tinta-suave); border-radius: 3px; padding: 0 4px; color: var(--tinta-suave); margin-left: 6px; }
+
+/* Número de anotación */
+.n {
+  display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--anotacion); color: var(--papel); font-family: var(--f-dato); font-size: 12px; font-weight: 500;
+  vertical-align: middle; flex: none; margin-left: 4px;
+}
+.imagen .n, .vacio .n.flota { position: absolute; top: 8px; right: 8px; }
+
+/* Lista de anotaciones bajo cada boceto */
+.notas { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px 28px; }
+.notas li { display: grid; grid-template-columns: 30px 1fr; gap: 6px; font-size: .92rem; }
+.notas li .n { margin: 2px 0 0; }
+.notas em { color: var(--anotacion); font-style: normal; font-weight: 600; }
+
+/* Ventanas secundarias */
+.secundarias { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 24px; }
+.secundarias > * { min-width: 0; }
+.dialogo { border: 2px solid var(--trazo); border-radius: 6px; background: var(--papel); }
+.dialogo .cuerpo-dialogo { padding: 14px; display: grid; gap: 12px; }
+.dialogo .pie { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 14px; border-top: 1.5px dashed var(--trazo); }
+.lista-archivos { border: 2px solid var(--trazo); min-height: 96px; padding: 6px 8px; display: grid; gap: 2px; align-content: start; }
+.lista-archivos .sel { background: var(--relleno-2); }
+.icono-aviso { font-size: 30px; line-height: 1; color: var(--aviso); }
+.fila { display: flex; align-items: center; gap: 10px; }
+.histos { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.histo { border: 1.5px solid var(--trazo); padding: 4px 6px 2px; }
+.histo svg { width: 100%; height: 64px; display: block; }
+.histo svg path { fill: none; stroke: var(--trazo); stroke-width: 2; }
+.histo svg line { stroke: var(--trazo); stroke-width: 1.5; }
+
+/* Mapa de navegación */
+.mapa { overflow-x: auto; }
+.mapa-grid { min-width: 860px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px 30px; font-family: var(--f-boceto); font-size: 17px; }
+.nodo { border: 2px solid var(--trazo); border-radius: 6px; padding: 8px 10px; text-align: center; background: var(--papel); position: relative; }
+.nodo.principal { border-width: 3px; background: var(--relleno); }
+.nodo.dialogo-n { border-style: dashed; }
+.nodo small { display: block; font-family: var(--f-texto); font-size: 12px; color: var(--tinta-suave); }
+.flecha { position: relative; }
+.flecha::after { content: "→"; position: absolute; right: -24px; top: 50%; transform: translateY(-50%); color: var(--anotacion); font-size: 20px; }
+.flecha-abajo::after { content: "↓"; position: absolute; left: 50%; bottom: -24px; transform: translateX(-50%); color: var(--anotacion); font-size: 20px; }
+.vacia { visibility: hidden; }
+
+/* Tabla */
+.tabla { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: .9rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--regla); }
+th { font-family: var(--f-dato); font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--tinta-suave); font-weight: 500; }
+td:first-child { width: 44px; }
+.principio { font-family: var(--f-dato); font-size: .8rem; color: var(--anotacion); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<main class="pagina">
+
+  <header class="intro">
+    <span class="eyebrow">Proyecto Unidad 4 · Computación Gráfica · UTP</span>
+    <h1>Boceto del Visor de Imágenes</h1>
+    <p>Wireframe de fidelidad baja-media del visor que pide el enunciado del proyecto. La distribución elegida es la <strong>opción B</strong>: área de imagen a la izquierda y un panel de controles agrupado en pestañas a la derecha. Cada boceto trae anotaciones numeradas que explican qué requisito cubre cada control y qué principio de diseño justifica su ubicación.</p>
+    <div class="ficha">
+      <span><b>Plataforma:</b> escritorio (Tkinter)</span>
+      <span><b>Ventana:</b> 1100 × 700 px</span>
+      <span><b>Pantallas:</b> 6 vistas + 4 diálogos</span>
+      <span><b>Actor:</b> usuario que edita y analiza imágenes</span>
+    </div>
+  </header>
+
+  <!-- ===================================================== -->
+  <section>
+    <div class="cabecera-seccion">
+      <span class="eyebrow">Antes de dibujar</span>
+      <h2>Convenciones y guía en papel</h2>
+    </div>
+    <div class="dos-col">
+      <div class="leyenda wf">
+        <ul>
+          <li><span class="muestra"><span class="imagen" style="width:110px;min-height:56px"></span></span><span>Caja con X: imagen</span></li>
+          <li><span class="muestra"><span class="boton">Botón</span></span><span>Rectángulo: botón</span></li>
+          <li><span class="muestra"><span class="boton principal">Actualizar</span></span><span>Borde grueso: acción principal</span></li>
+          <li><span class="muestra"><span class="deslizador" style="width:100px"><i style="left:50%"></i></span></span><span>Línea con perilla: deslizador</span></li>
+          <li><span class="muestra"><span class="casilla on">R</span>&nbsp;<span class="opcion on">Sí</span></span><span>Casilla y botón de opción</span></li>
+          <li><span class="muestra"><span class="boton inactivo">Cargar</span></span><span>Trazo claro: control deshabilitado</span></li>
+          <li><span class="muestra"><span class="n">1</span></span><span>Círculo azul: anotación</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-bottom:10px">Cómo pasarlo a una hoja cuadriculada (horizontal)</h3>
+        <ol class="pasos">
+          <li><span>Dibuja la ventana de <strong>30 × 20 cuadros</strong> (1 cuadro ≈ 37 px).</span></li>
+          <li><span>Arriba, 3 franjas de 1 cuadro: barra de título, menú y fila de ruta.</span></li>
+          <li><span>Abajo, 1 cuadro para la barra de estado.</span></li>
+          <li><span>Divide el espacio restante: <strong>19 cuadros</strong> para la imagen y <strong>11</strong> para el panel (proporción ≈ 2 : 1).</span></li>
+          <li><span>En el panel: 1 cuadro de pestañas arriba y 2 cuadros de botones abajo; el resto es el contenido de la pestaña.</span></li>
+          <li><span>Lápiz para el boceto y bolígrafo azul para los números y las notas.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <section>
+    <div class="cabecera-seccion">
+      <span class="eyebrow">Pantalla 1</span>
+      <h2>Estado inicial: sin imagen cargada</h2>
+      <p>Lo primero que ve el usuario. Los controles que necesitan una imagen están deshabilitados, y el área central le dice qué hacer.</p>
+    </div>
+    <div class="lienzo wf">
+      <div class="ventana">
+        <div class="barra-titulo"><span>Visor de Imágenes <span class="n">1</span></span><span class="botones-so">_ □ ×</span></div>
+        <div class="menu"><span>Archivo</span><span>Editar</span><span>Ver</span><span>Ayuda</span><span class="n">2</span></div>
+        <div class="fila-ruta">
+          <span>Archivo de imagen:</span>
+          <span class="campo ancho" style="color:var(--tinta-suave)">Ninguna imagen seleccionada</span>
+          <span class="boton">Explorar…</span><span class="boton inactivo">Cargar</span><span class="n">3</span>
+        </div>
+        <div class="cuerpo">
+          <div class="area-imagen">
+            <div class="vacio" style="position:relative">
+              <span style="font-size:40px">⇪</span>
+              <span>Explora y carga una imagen</span>
+              <span style="font-size:14px">Formatos: JPG, PNG y BMP</span>
+              <span class="n flota">4</span>
+            </div>
+          </div>
+          <div class="panel inactivo">
+            <div class="pestanas"><span class="activa">Ajustes</span><span>Color</span><span>Zoom</span><span>Fusión</span></div>
+            <div class="contenido-pestana">
+              <div class="control"><span>Brillo</span><span class="deslizador"><i style="left:50%"></i></span><span class="campo giro">0</span></div>
+              <div class="control"><span>Contraste</span><span class="deslizador"><i style="left:33%"></i></span><span class="campo giro">1.0</span></div>
+              <div class="control"><span>Rotación</span><span class="deslizador"><i style="left:0%"></i></span><span class="campo giro">0°</span></div>
+            </div>
+            <div class="acciones-panel"><span class="boton">Restaurar</span><span class="boton principal">Actualizar</span></div>
+          </div>
+        </div>
+        <div class="barra-estado">
+          <span class="izq"><span class="boton inactivo">Histograma</span><span class="boton inactivo">Negativo</span><span class="boton inactivo">Guardar…</span></span>
+          <span>Listo. Selecciona una imagen para empezar. <span class="n">5</span></span>
+        </div>
+      </div>
+    </div>
+    <ul class="notas">
+      <li><span class="n">1</span><span><em>Título de la ventana</em> "Visor de Imágenes", como pide el enunciado.</span></li>
+      <li><span class="n">2</span><span><em>Barra de menú</em> clásica de escritorio. Repite las acciones de los botones para quien prefiere menús o atajos (Ctrl+O, Ctrl+S).</span></li>
+      <li><span class="n">3</span><span><em>Campo de ruta + Explorar + Cargar.</em> "Cargar" se habilita solo cuando hay una ruta, para evitar errores.</span></li>
+      <li><span class="n">4</span><span><em>Estado vacío</em> con instrucción y formatos válidos: el usuario sabe qué hacer sin leer el manual.</span></li>
+      <li><span class="n">5</span><span><em>Barra de estado</em> para la retroalimentación: mensajes de "Listo", errores y confirmaciones.</span></li>
+    </ul>
+  </section>
+
+  <!-- ===================================================== -->
+  <section>
+    <div class="cabecera-seccion">
+      <span class="eyebrow">Pantalla 2A</span>
+      <h2>Imagen cargada · pestaña Ajustes</h2>
+      <p>La vista principal de trabajo. Esta pestaña reúne las transformaciones de valores: brillo, contraste, rotación y filtro de zonas.</p>
+    </div>
+    <div class="lienzo wf">
+      <div class="ventana">
+        <div class="barra-titulo"><span>Visor de Imágenes — paisaje.jpg</span><span class="botones-so">_ □ ×</span></div>
+        <div class="menu"><span>Archivo</span><span>Editar</span><span>Ver</span><span>Ayuda</span></div>
+        <div class="fila-ruta">
+          <span>Archivo de imagen:</span>
+          <span class="campo ancho">C:/Usuarios/Ana/Imágenes/paisaje.jpg</span>
+          <span class="boton">Explorar…</span><span class="boton">Cargar</span>
+        </div>
+        <div class="cuerpo">
+          <div class="area-imagen">
+            <div class="imagen"><span class="n">6</span><span class="rotulo">imagen ajustada al área, sin deformar</span></div>
+          </div>
+          <div class="panel">
+            <div class="pestanas"><span class="activa">Ajustes</span><span>Color</span><span>Zoom</span><span>Fusión</span><span class="n" style="margin:6px">7</span></div>
+            <div class="contenido-pestana">
+              <div class="control"><span>Brillo</span><span class="deslizador"><i style="left:62%"></i><small class="izq">-100</small><small class="der">100</small></span><span class="campo giro">25</span></div>
+              <div class="control"><span>Contraste</span><span class="deslizador"><i style="left:45%"></i><small class="izq">0.2</small><small class="der">3.0</small></span><span class="campo giro">1.4</span></div>
+              <div class="control"><span>Rotación</span><span class="deslizador"><i style="left:25%"></i><small class="izq">0°</small><small class="der">360°</small></span><span class="campo giro">90°</span></div>
+              <span style="text-align:right"><span class="n">8</span></span>
+              <div class="grupo">
+                <span class="titulo-grupo">Filtro de zonas <span class="n">9</span></span>
+                <div class="opciones"><span class="opcion on">Ninguno</span><span class="opcion">Zonas claras</span><span class="opcion">Zonas oscuras</span></div>
+              </div>
+            </div>
+            <div class="acciones-panel">
+              <span class="casilla on" style="font-size:15px">Actualizar al mover</span>
+              <span><span class="boton">Restaurar</span> <span class="boton principal">Actualizar</span><span class="n">10</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="barra-estado">
+          <span class="izq"><span class="boton">Histograma</span><span class="boton">Negativo</span><span class="boton">Guardar…</span><span class="n">11</span></span>
+          <span>paisaje.jpg · 1280 × 853 px · RGB · Listo ✓</span>
+        </div>
+      </div>
+    </div>
+    <ul class="notas">
+      <li><span class="n">6</span><span><em>Área de imagen</em> con 2/3 del ancho: es el contenido principal, así que domina la jerarquía visual.</span></li>
+      <li><span class="n">7</span><span><em>Panel en pestañas.</em> Los ~20 controles quedan en 4 grupos; cada pestaña muestra 4 a 7 opciones a la vez (Ley de Hick).</span></li>
+      <li><span class="n">8</span><span><em>Deslizador + caja numérica</em> en cada ajuste: arrastrar para explorar, escribir para un valor exacto. Muestran el rango en los extremos.</span></li>
+      <li><span class="n">9</span><span><em>Zonas claras / oscuras</em> como botones de opción, porque se excluyen entre sí. "Ninguno" permite quitar el filtro.</span></li>
+      <li><span class="n">10</span><span><em>Actualizar</em> es la acción principal: borde grueso, abajo a la derecha, cerca de los controles (Ley de Fitts). Con "Actualizar al mover" la vista cambia en cada ajuste (actualización dinámica).</span></li>
+      <li><span class="n">11</span><span><em>Acciones globales</em> en la barra inferior: siempre en el mismo lugar, sin importar la pestaña (consistencia).</span></li>
+    </ul>
+  </section>
+
+  <!-- ===================================================== -->
+  <section>
+    <div class="cabecera-seccion">
+      <span class="eyebrow">Pantallas 2B, 2C y 2D</span>
+      <h2>Las otras tres pestañas del panel</h2>
+      <p>Solo cambia el contenido del panel derecho; el resto de la ventana es idéntico a la pantalla 2A. En papel basta con dibujar el panel.</p>
+    </div>
+    <div class="secundarias wf">
+
+      <!-- 2B Color -->
+      <div class="dialogo">
+        <div class="barra-titulo"><span>2B · Pestaña Color</span></div>
+        <div class="pestanas"><span>Ajustes</span><span class="activa">Color</span><span>Zoom</span><span>Fusión</span></div>
+        <div class="cuerpo-dialogo">
+          <div class="grupo"><span class="titulo-grupo">Canales RGB <span class="n">12</span></span>
+            <div class="opciones"><span class="casilla on">Rojo</span><span class="casilla on">Verde</span><span class="casilla">Azul</span></div>
+          </div>
+          <div class="grupo"><span class="titulo-grupo">Canales CMY</span>
+            <div class="opciones"><span class="casilla">Cian</span><span class="casilla">Magenta</span><span class="casilla">Amarillo</span></div>
+          </div>
+          <div class="grupo"><span class="titulo-grupo">Binarizar <span class="n">13</span></span>
+            <span class="casilla on">Convertir a blanco y negro</span>
+            <div class="control"><span>Umbral</span><span class="deslizador"><i style="left:50%"></i><small class="izq">0</small><small class="der">1</small></span><span class="campo giro">0.50</span></div>
+          </div>
+        </div>
+        <div class="pie"><span class="boton">Restaurar</span><span class="boton principal">Actualizar</span></div>
+      </div>
+
+      <!-- 2C Zoom -->
+      <div class="dialogo">
+        <div class="barra-titulo"><span>2C · Pestaña Zoom</span></div>
+        <div class="pestanas"><span>Ajustes</span><span>Color</span><span class="activa">Zoom</span><span>Fusión</span></div>
+        <div class="cuerpo-dialogo">
+          <div class="grupo"><span class="titulo-grupo">Punto inicial (px) <span class="n">14</span></span>
+            <div class="fila"><span>X</span><span class="campo giro" style="width:80px">320</span><span>Y</span><span class="campo giro" style="width:80px">180</span></div>
+            <span style="font-size:14px;color:var(--tinta-suave)">Máx.: X 1279 · Y 852</span>
+          </div>
+          <div class="control"><span>Factor</span><span class="deslizador"><i style="left:22%"></i><small class="izq">1×</small><small class="der">10×</small></span><span class="campo giro">3×</span></div>
+          <div class="fila" style="gap:8px"><span class="miniatura" style="position:relative;height:84px"><span class="marco-zoom" style="left:25%;top:22%;width:33%;height:33%"></span></span><span class="n">15</span></div>
+          <span class="casilla inactivo">Seleccionar con el ratón <span class="fase2">fase 2</span></span>
+        </div>
+        <div class="pie"><span class="boton">Quitar zoom</span><span class="boton principal">Aplicar zoom</span></div>
+      </div>
+
+      <!-- 2D Fusión -->
+      <div class="dialogo">
+        <div class="barra-titulo"><span>2D · Pestaña Fusión</span></div>
+        <div class="pestanas"><span>Ajustes</span><span>Color</span><span>Zoom</span><span class="activa">Fusión</span></div>
+        <div class="cuerpo-dialogo">
+          <div class="fila"><span class="campo ancho">montaña.png</span><span class="boton">Explorar…</span><span class="n">16</span></div>
+          <span class="miniatura"></span>
+          <div class="control"><span>Transpar.</span><span class="deslizador"><i style="left:40%"></i><small class="izq">0 opaca</small><small class="der">1 transp.</small></span><span class="campo giro">0.40</span></div>
+          <div class="fila"><span>Modo</span><span class="campo combo inactivo" style="flex:1">Normal</span><span class="fase2">fase 2</span><span class="n">17</span></div>
+        </div>
+        <div class="pie"><span class="boton">Quitar fusión</span><span class="boton principal">Fusionar</span></div>
+      </div>
+    </div>
+    <ul class="notas">
+      <li><span class="n">12</span><span><em>Casillas</em> para RGB y CMY porque se pueden combinar (ej. rojo + verde). Desmarcar un canal lo apaga en la imagen.</span></li>
+      <li><span class="n">13</span><span><em>Binarizar</em> con su umbral en el mismo grupo; el deslizador se deshabilita si la casilla está desmarcada.</span></li>
+      <li><span class="n">14</span><span><em>Coordenadas (X, Y)</em> con el máximo permitido a la vista, para no pedir puntos fuera de la imagen.</span></li>
+      <li><span class="n">15</span><span><em>Vista previa del recuadro</em> punteado: muestra qué región se ampliará antes de aplicar (retroalimentación).</span></li>
+      <li><span class="n">16</span><span><em>Segunda imagen</em> con su propio Explorar y miniatura, para confirmar que es la correcta.</span></li>
+      <li><span class="n">17</span><span><em>Transparencia de 0 a 1</em> como pide el enunciado. Los modos (multiplicar, suma, diferencia) se reservan para la fase 2.</span></li>
+    </ul>
+  </section>
+
+  <!-- ===================================================== -->
+  <section>
+    <div class="cabecera-seccion">
+      <span class="eyebrow">Pantalla 3</span>
+      <h2>Ventana de histograma</h2>
+      <p>Se abre aparte con el botón "Histograma" o el menú Ver. Así se puede comparar el histograma con la imagen mientras se ajusta.</p>
+    </div>
+    <div class="secundarias wf">
+      <div class="dialogo" style="grid-column: 1 / -1; max-width: 640px">
+        <div class="barra-titulo"><span>Histograma — paisaje.jpg</span><span class="botones-so">_ □ ×</span></div>
+        <div class="cuerpo-dialogo">
+          <div class="opciones"><span>Vista:</span><span class="opcion on">Separados</span><span class="opcion">Superpuestos</span><span class="n">18</span></div>
+          <div class="histos">
+            <div class="histo"><span>Rojo</span><svg viewBox="0 0 200 64" preserveAspectRatio="none"><line x1="0" y1="62" x2="200" y2="62"/><path d="M0 62 C30 60 40 20 70 28 S120 58 150 40 S185 10 200 50"/></svg></div>
+            <div class="histo"><span>Verde</span><svg viewBox="0 0 200 64" preserveAspectRatio="none"><line x1="0" y1="62" x2="200" y2="62"/><path d="M0 62 C20 58 50 14 80 22 S130 50 160 46 S190 40 200 58"/></svg></div>
+            <div class="histo"><span>Azul</span><svg viewBox="0 0 200 64" preserveAspectRatio="none"><line x1="0" y1="62" x2="200" y2="62"/><path d="M0 50 C25 10 55 18 80 40 S140 58 170 52 S195 56 200 60"/></svg></div>
+            <div class="histo"><span>Luminosidad</span><svg viewBox="0 0 200 64" preserveAspectRatio="none"><line x1="0" y1="62" x2="200" y2="62"/><path d="M0 62 C30 54 55 16 90 24 S140 50 165 38 S190 46 200 58"/></svg></div>
+          </div>
+          <span style="font-size:14px;color:var(--tinta-suave)">Eje X: intensidad 0–255 · Eje Y: número de píxeles <span class="n">19</span></span>
+        </div>
+        <div class="pie"><span class="boton">Guardar gráfica…</span><span class="boton principal">Cerrar</span></div>
+      </div>
+    </div>
+    <ul class="notas">
+      <li><span class="n">18</span><span><em>Separados o superpuestos</em>: 4 gráficas pequeñas para leer cada canal, o una sola para compararlos.</span></li>
+      <li><span class="n">19</span><span><em>Canales R, G, B y luminosidad</em> como pide el enunciado, con los ejes rotulados. Se dibuja con Matplotlib.</span></li>
+    </ul>
+  </section>
+
+  <!-- ===================================================== -->
+  <section>
+    <div class="cabecera-seccion">
+      <span class="eyebrow">Pantalla 4</span>
+      <h2>Diálogos y mensajes</h2>
+      <p>Ventanas pequeñas que bloquean la principal hasta que el usuario responde (diálogos modales).</p>
+    </div>
+    <div class="secundarias wf">
+      <div class="dialogo">
+        <div class="barra-titulo"><span>4A · Abrir imagen</span><span class="botones-so">×</span></div>
+        <div class="cuerpo-dialogo">
+          <div class="fila"><span>Buscar en:</span><span class="campo combo" style="flex:1">Imágenes</span></div>
+          <div class="lista-archivos"><span>🗀 Vacaciones</span><span class="sel">▣ paisaje.jpg</span><span>▣ montaña.png</span><span>▣ logo_utp.bmp</span></div>
+          <div class="fila"><span>Tipo:</span><span class="campo combo" style="flex:1">Imágenes (*.jpg, *.png, *.bmp)</span><span class="n">20</span></div>
+        </div>
+        <div class="pie"><span class="boton">Cancelar</span><span class="boton principal">Abrir</span></div>
+      </div>
+      <div class="dialogo">
+        <div class="barra-titulo"><span>4B · Guardar como</span><span class="botones-so">×</span></div>
+        <div class="cuerpo-dialogo">
+          <div class="fila"><span>Carpeta:</span><span class="campo ancho">C:/Usuarios/Ana/Imágenes</span><span class="boton">…</span></div>
+          <div class="fila"><span>Nombre:</span><span class="campo ancho">paisaje_editado</span></div>
+          <div class="fila"><span>Formato:</span><span class="campo combo" style="flex:1">PNG</span><span class="n">21</span></div>
+        </div>
+        <div class="pie"><span class="boton">Cancelar</span><span class="boton principal">Guardar</span></div>
+      </div>
+      <div class="dialogo">
+        <div class="barra-titulo"><span>4C · Error</span><span class="botones-so">×</span></div>
+        <div class="cuerpo-dialogo">
+          <div class="fila" style="align-items:flex-start"><span class="icono-aviso">⚠</span>
+            <span>No se pudo abrir "animación.gif".<br>El visor acepta JPG, PNG y BMP. Elige otro archivo. <span class="n">22</span></span></div>
+        </div>
+        <div class="pie"><span class="boton principal">Aceptar</span></div>
+      </div>
+      <div class="dialogo">
+        <div class="barra-titulo"><span>4D · Fusión: tamaños distintos</span><span class="botones-so">×</span></div>
+        <div class="cuerpo-dialogo">
+          <div class="fila" style="align-items:flex-start"><span class="icono-aviso">ⓘ</span>
+            <span>La segunda imagen mide 800 × 600 px y la principal 1280 × 853 px. Se redimensionará a 1280 × 853 px para fusionarlas. <span class="n">23</span></span></div>
+        </div>
+        <div class="pie"><span class="boton">Cancelar</span><span class="boton principal">Redimensionar y fusionar</span></div>
+      </div>
+    </div>
+    <ul class="notas">
+      <li><span class="n">20</span><span><em>Filtro de tipo</em> en el diálogo: solo se ven los formatos válidos, así el error es menos probable.</span></li>
+      <li><span class="n">21</span><span><em>Nombre y ubicación nuevos</em> para no sobrescribir la original, como pide el enunciado.</span></li>
+      <li><span class="n">22</span><span><em>Mensaje de error</em> que dice qué falló y cómo resolverlo.</span></li>
+      <li><span class="n">23</span><span><em>Aviso previo</em>: la fusión necesita imágenes del mismo tamaño; el usuario decide antes de que ocurra.</span></li>
+    </ul>
+  </section>
+
+  <!-- ===================================================== -->
+  <section>
+    <div class="cabecera-seccion">
+      <span class="eyebrow">Flujo</span>
+      <h2>Mapa de navegación</h2>
+      <p>Borde grueso: ventana principal. Borde punteado: diálogo modal. La ruta principal va de izquierda a derecha; las ramas de abajo salen de la ventana principal y vuelven a ella.</p>
+    </div>
+    <div class="mapa">
+      <div class="mapa-grid">
+        <div class="nodo principal flecha">Pantalla 1<small>sin imagen</small></div>
+        <div class="nodo dialogo-n flecha">4A Abrir<small>Explorar…</small></div>
+        <div class="nodo principal flecha">Pantalla 2A–2D<small>Cargar → editar</small></div>
+        <div class="nodo flecha">Actualizar<small>se aplican los ajustes</small></div>
+        <div class="nodo dialogo-n">4B Guardar como<small>"Guardado ✓" en la barra</small></div>
+
+        <div class="vacia nodo">.</div>
+        <div class="nodo dialogo-n">4C Error<small>formato no válido → vuelve a 4A</small></div>
+        <div class="nodo flecha-abajo" style="border-style:dotted">Ramas desde la ventana principal</div>
+        <div class="vacia nodo">.</div>
+        <div class="vacia nodo">.</div>
+
+        <div class="vacia nodo">.</div>
+        <div class="vacia nodo">.</div>
+        <div class="fila" style="gap:14px;grid-column: 2 / 5;justify-content:center;flex-wrap:wrap">
+          <div class="nodo">Pantalla 3<small>Histograma</small></div>
+          <div class="nodo dialogo-n">4D Aviso de tamaño<small>desde Fusionar</small></div>
+          <div class="nodo">Restaurar<small>vuelve a la original</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== -->
+  <section>
+    <div class="cabecera-seccion">
+      <span class="eyebrow">Justificación</span>
+      <h2>Trazabilidad: control → requisito → principio</h2>
+      <p>Cada requisito mínimo del enunciado tiene un lugar en el boceto. Esta tabla sirve como guion para la sustentación.</p>
+    </div>
+    <div class="tabla">
+      <table>
+        <thead><tr><th>N.º</th><th>Control en el boceto</th><th>Requisito del enunciado</th><th>Principio de diseño</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Título "Visor de Imágenes"</td><td>Ventana principal con título adecuado</td><td class="principio">Jerarquía visual</td></tr>
+          <tr><td>3</td><td>Campo de ruta, Explorar y Cargar</td><td>Campo con la ruta; botones Explorar y Cargar</td><td class="principio">Consistencia</td></tr>
+          <tr><td>4</td><td>Estado vacío con instrucción</td><td>Cargar imágenes JPG, PNG y BMP</td><td class="principio">Retroalimentación</td></tr>
+          <tr><td>6</td><td>Área de imagen (2/3 del ancho)</td><td>Mostrar la imagen en la ventana principal</td><td class="principio">Jerarquía visual</td></tr>
+          <tr><td>7</td><td>Panel en 4 pestañas</td><td>Organizar con tkinter.Frame (recomendación)</td><td class="principio">Ley de Hick</td></tr>
+          <tr><td>8</td><td>Deslizadores de brillo, contraste y rotación</td><td>Controles deslizantes; rotación de 0° a 360°</td><td class="principio">Retroalimentación</td></tr>
+          <tr><td>9</td><td>Zonas claras / oscuras</td><td>Filtro para resaltar zonas claras u oscuras</td><td class="principio">Ley de Hick</td></tr>
+          <tr><td>10</td><td>Actualizar + "Actualizar al mover"</td><td>Botón Actualizar; actualización dinámica</td><td class="principio">Ley de Fitts</td></tr>
+          <tr><td>11</td><td>Histograma, Negativo y Guardar en la barra inferior</td><td>Visualizar histograma; negativo; guardar con otro nombre</td><td class="principio">Consistencia</td></tr>
+          <tr><td>12</td><td>Casillas RGB y CMY</td><td>Activar o desactivar canales RGB y CMY</td><td class="principio">Consistencia</td></tr>
+          <tr><td>13</td><td>Binarizar con umbral</td><td>Binarizar con umbral ajustable</td><td class="principio">Retroalimentación</td></tr>
+          <tr><td>14–15</td><td>X, Y, factor y recuadro de vista previa</td><td>Zoom desde (X, Y) con factor de escala</td><td class="principio">Retroalimentación</td></tr>
+          <tr><td>16–17</td><td>Segunda imagen + transparencia 0–1</td><td>Fusionar con transparencia ajustable</td><td class="principio">Retroalimentación</td></tr>
+          <tr><td>18–19</td><td>Ventana de histograma R, G, B y luminosidad</td><td>Histograma por canal e intensidad, con Matplotlib</td><td class="principio">Jerarquía visual</td></tr>
+          <tr><td>20–23</td><td>Diálogos de abrir, guardar, error y aviso</td><td>Cargar y guardar sin errores</td><td class="principio">Retroalimentación</td></tr>
+          <tr><td>—</td><td>Restaurar, modos de fusión, zoom con ratón</td><td>Funcionalidades avanzadas (opcionales)</td><td class="principio">Previsto para fase 2</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>

@@ -1,0 +1,83 @@
+.home {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 56px max(16px, env(safe-area-inset-left, 0px)) 64px;
+  display: grid;
+  gap: 40px;
+}
+
+.home-cabecera {
+  display: grid;
+  gap: 10px;
+}
+
+.home-cabecera h1 {
+  position: relative;
+  justify-self: start;
+  font-size: var(--texto-titulo);
+  line-height: 1.1;
+  padding-bottom: 8px;
+}
+
+.home-subrayado {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 10px;
+}
+
+.home-cabecera p {
+  margin: 0;
+  font-size: var(--texto-grande);
+}
+
+.home-proyectos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.home-tarjeta {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 22px 22px 20px;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.12s ease;
+}
+
+.home-tarjeta > *:not(.trazo) {
+  position: relative;
+  z-index: 1;
+}
+
+.home-tarjeta:hover {
+  transform: rotate(-0.6deg) translateY(-2px);
+}
+
+.home-tarjeta h2 {
+  font-size: 1.7rem;
+}
+
+.home-tarjeta p {
+  margin: 0;
+}
+
+.home-unidad {
+  justify-self: start;
+  font-size: var(--texto-pequeno);
+  color: var(--acento);
+}
+
+.home-temas {
+  font-size: var(--texto-pequeno);
+}
+
+.home-abrir {
+  justify-self: end;
+  font-size: var(--texto-grande);
+  color: var(--acento);
+}

@@ -1,0 +1,68 @@
+/* Estilos base. Los valores salen de las variables que genera ThemeProvider
+   a partir de theme.ts; aquí no hay colores escritos a mano. */
+
+@font-face {
+  font-family: "Excalifont";
+  src: url("/fonts/Excalifont-Regular.woff2") format("woff2");
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--fuente-manuscrita);
+  font-size: var(--texto-normal);
+  line-height: 1.3;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--acento);
+}
+
+:focus-visible {
+  outline: 2px dashed var(--acento);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 400;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.suave {
+  color: var(--tinta-suave);
+}
+
+.mono {
+  font-family: var(--fuente-mono);
+  font-size: 0.85em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

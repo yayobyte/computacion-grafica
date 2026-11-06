@@ -1,0 +1,385 @@
+/* Componentes de boceto. El trazo lo dibuja <Trazo>; aquí solo hay
+   disposición y espaciado, todo con las variables del tema. */
+
+.trazo {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.trazo path {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sk-caja,
+.sk-boton,
+.sk-campo,
+.sk-pestana,
+.sk-ventana,
+.sk-grupo,
+.sk-desplegable {
+  position: relative;
+}
+
+.sk-caja > *:not(.trazo),
+.sk-ventana > *:not(.trazo) {
+  position: relative;
+  z-index: 1;
+}
+
+.inactivo {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* --- Botón --- */
+.sk-boton {
+  background: none;
+  border: 0;
+  padding: 6px 16px 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.08s ease;
+}
+
+.sk-boton:hover:not(:disabled) {
+  transform: translateY(-1px) rotate(-0.4deg);
+}
+
+.sk-boton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.sk-boton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sk-boton.principal {
+  padding: 8px 22px 9px;
+  font-size: var(--texto-grande);
+}
+
+.sk-boton-texto {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Campo --- */
+.sk-campo {
+  display: inline-flex;
+  min-width: 0;
+}
+
+.sk-campo input {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 5px 10px 6px;
+  outline: none;
+}
+
+.sk-campo:focus-within .trazo path {
+  stroke: var(--acento) !important;
+}
+
+/* --- Deslizador --- */
+.sk-control {
+  display: grid;
+  grid-template-columns: 92px 1fr 74px;
+  align-items: center;
+  gap: 10px;
+}
+
+.sk-deslizador {
+  position: relative;
+  height: 40px;
+}
+
+.sk-pista {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 6px;
+}
+
+.sk-perilla {
+  position: absolute;
+  top: 2px;
+  width: 18px;
+  height: 22px;
+  pointer-events: none;
+}
+
+.sk-deslizador input[type="range"] {
+  position: absolute;
+  inset: 0 0 14px;
+  width: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.sk-deslizador:focus-within .sk-perilla .trazo path {
+  stroke: var(--acento) !important;
+}
+
+.sk-extremo {
+  position: absolute;
+  bottom: 0;
+  font-size: 0.78rem;
+  color: var(--tinta-suave);
+}
+
+.sk-extremo.izq {
+  left: 0;
+}
+
+.sk-extremo.der {
+  right: 0;
+}
+
+.sk-numero input {
+  text-align: right;
+  padding-inline: 8px;
+}
+
+/* --- Casilla y opción --- */
+.sk-casilla {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  position: relative;
+}
+
+.sk-oculto {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.sk-marco {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.sk-tilde {
+  position: absolute;
+  inset: -3px -6px 0 0;
+}
+
+.sk-punto {
+  position: absolute;
+  inset: 6px;
+}
+
+.sk-oculto:focus-visible + .sk-marco {
+  outline: 2px dashed var(--acento);
+  outline-offset: 3px;
+}
+
+/* --- Grupo --- */
+.sk-grupo {
+  border: 0;
+  margin: 0;
+  padding: 18px 14px 12px;
+}
+
+.sk-grupo legend {
+  position: absolute;
+  top: -12px;
+  left: 12px;
+  padding: 0 6px;
+  background: var(--superficie);
+  z-index: 1;
+}
+
+.sk-grupo-contenido {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 10px;
+}
+
+.sk-fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+
+/* --- Pestañas --- */
+.sk-pestanas {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+.sk-pestana {
+  min-width: 0;
+  background: none;
+  border: 0;
+  padding: 8px 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--tinta-suave);
+}
+
+.sk-pestana.activa {
+  color: var(--tinta);
+}
+
+.sk-pestana:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* --- Líneas --- */
+.sk-linea {
+  position: relative;
+  height: 4px;
+}
+
+.sk-linea-v {
+  position: relative;
+  width: 4px;
+}
+
+/* --- Ventanas y diálogos --- */
+.sk-barra-titulo {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: var(--texto-grande);
+}
+
+.sk-cerrar {
+  background: none;
+  border: 0;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--tinta-suave);
+}
+
+.sk-fondo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--papel) 70%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.sk-dialogo {
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+}
+
+.sk-dialogo-cuerpo {
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  overflow: auto;
+}
+
+.sk-dialogo-pie {
+  padding: 0 16px 14px;
+}
+
+.sk-dialogo-botones {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+/* --- Barra de menú --- */
+.sk-barra-menu {
+  display: flex;
+  gap: 6px;
+}
+
+.sk-menu {
+  position: relative;
+}
+
+.sk-menu-titulo {
+  background: none;
+  border: 0;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.sk-menu-titulo:hover,
+.sk-menu-titulo.abierto {
+  background: var(--acento-suave);
+}
+
+.sk-desplegable {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 40;
+  min-width: 250px;
+  padding: 8px;
+  display: grid;
+}
+
+.sk-menu-item {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 18px 1fr auto auto;
+  gap: 6px;
+  align-items: center;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.sk-menu-item:hover:not(:disabled) {
+  background: var(--acento-suave);
+}
+
+.sk-menu-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sk-menu-atajo {
+  font-size: 0.85em;
+}
+
+.sk-fase2 {
+  font-family: var(--fuente-mono);
+  font-size: 0.7rem;
+  border: 1px dashed var(--tinta-suave);
+  border-radius: 4px;
+  padding: 0 4px;
+  color: var(--tinta-suave);
+  white-space: nowrap;
+}
